@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!--
+Copyright OpenSearch Contributors
+SPDX-License-Identifier: Apache-2.0
+
+The OpenSearch Contributors require contributions made to
+this file be licensed under the Apache-2.0 license or a
+compatible open source license.
+-->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenSearch Developer Workbench</title>
+    <script>
+      // Polyfill for Node.js global (required by OUI)
+      window.global = window;
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

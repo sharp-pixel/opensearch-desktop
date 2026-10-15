@@ -1,0 +1,147 @@
+# Copyright OpenSearch Contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# The OpenSearch Contributors require contributions made to
+# this file be licensed under the Apache-2.0 license or a
+# compatible open source license.
+
+services:
+  opensearch:
+    image: opensearchproject/opensearch:3.8.0
+    container_name: opensearch-node
+    environment:
+      - cluster.name=opensearch-cluster-1
+      - node.name=opensearch-node-1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - aux.transport.types=transport-grpc
+      - aux.transport.transport-grpc.port=9400
+      - grpc.bind_host=0.0.0.0
+      # Security plugin configuration
+      - plugins.security.ssl.transport.enabled=true
+      - plugins.security.ssl.http.enabled=true
+      - plugins.security.ssl.transport.pemcert_filepath=esnode.pem
+      - plugins.security.ssl.transport.pemkey_filepath=esnode-key.pem
+      - plugins.security.ssl.transport.pemtrustedcas_filepath=root-ca.pem
+      - plugins.security.ssl.http.pemcert_filepath=esnode.pem
+      - plugins.security.ssl.http.pemkey_filepath=esnode-key.pem
+      - plugins.security.ssl.http.pemtrustedcas_filepath=root-ca.pem
+      - plugins.security.allow_default_init_securityindex=true
+      - plugins.security.authcz.admin_dn=CN=admin,OU=SSL,O=Test,L=Test,C=DE
+      - plugins.security.nodes_dn=CN=opensearch-node,OU=SSL,O=Test,L=Test,C=DE
+      - plugins.security.audit.type=internal_opensearch
+      - plugins.security.enable_snapshot_restore_privilege=true
+      - plugins.security.check_snapshot_restore_write_privileges=true
+      - plugins.security.restapi.roles_enabled=["all_access", "security_rest_api_access"]
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data-1:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "127.0.0.1:9400:9400"
+      - "9600:9600"
+    networks:
+      - opensearch-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsk https://localhost:9200 -u \"admin:$${OPENSEARCH_INITIAL_ADMIN_PASSWORD}\" | grep -q 'opensearch'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  opensearch-2:
+    image: opensearchproject/opensearch:3.8.0
+    container_name: opensearch-node-2
+    environment:
+      - cluster.name=opensearch-cluster-2
+      - node.name=opensearch-node-2
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - aux.transport.types=transport-grpc
+      - aux.transport.transport-grpc.port=9400
+      - grpc.bind_host=0.0.0.0
+      # Security plugin configuration
+      - plugins.security.ssl.transport.enabled=true
+      - plugins.security.ssl.http.enabled=true
+      - plugins.security.ssl.transport.pemcert_filepath=esnode.pem
+      - plugins.security.ssl.transport.pemkey_filepath=esnode-key.pem
+      - plugins.security.ssl.transport.pemtrustedcas_filepath=root-ca.pem
+      - plugins.security.ssl.http.pemcert_filepath=esnode.pem
+      - plugins.security.ssl.http.pemkey_filepath=esnode-key.pem
+      - plugins.security.ssl.http.pemtrustedcas_filepath=root-ca.pem
+      - plugins.security.allow_default_init_securityindex=true
+      - plugins.security.authcz.admin_dn=CN=admin,OU=SSL,O=Test,L=Test,C=DE
+      - plugins.security.nodes_dn=CN=opensearch-node,OU=SSL,O=Test,L=Test,C=DE
+      - plugins.security.audit.type=internal_opensearch
+      - plugins.security.enable_snapshot_restore_privilege=true
+      - plugins.security.check_snapshot_restore_write_privileges=true
+      - plugins.security.restapi.roles_enabled=["all_access", "security_rest_api_access"]
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data-2:/usr/share/opensearch/data
+    ports:
+      - "9201:9200"
+      - "127.0.0.1:9401:9400"
+      - "9601:9600"
+    networks:
+      - opensearch-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsk https://localhost:9200 -u \"admin:$${OPENSEARCH_INITIAL_ADMIN_PASSWORD}\" | grep -q 'opensearch'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Optional standalone runtime for manual testing; workbench simulation runs locally.
+  data-prepper:
+    image: opensearchproject/data-prepper:2.16.0
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "127.0.0.1:2021:2021"
+      - "127.0.0.1:4900:4900"
+    configs:
+      - source: data-prepper-pipelines
+        target: /usr/share/data-prepper/pipelines/pipelines.yaml
+      - source: data-prepper-server
+        target: /usr/share/data-prepper/config/data-prepper-config.yaml
+    networks:
+      - opensearch-net
+
+# Local HTTP input with stdout output provides a usable starter pipeline.
+# Configuration paths: https://docs.opensearch.org/latest/data-prepper/getting-started/
+configs:
+  data-prepper-pipelines:
+    content: |
+      workbench-pipeline:
+        source:
+          http:
+            port: 2021
+            ssl: false
+        sink:
+          - stdout:
+  data-prepper-server:
+    content: |
+      ssl: false
+      serverPort: 4900
+
+volumes:
+  opensearch-data-1:
+  opensearch-data-2:
+
+networks:
+  opensearch-net:

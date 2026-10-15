@@ -1,0 +1,25 @@
+OpenSearch Developer Workbench
+Copyright OpenSearch Contributors
+
+This independently maintained project is licensed under the Apache License,
+Version 2.0. See LICENSE. Third-party components retain their own licenses;
+see licenses/distribution/THIRD-PARTY-NOTICES.txt and the accompanying inventory.
+
+This product includes SVG paths from Bootstrap Icons.
+Copyright (c) 2019-2024 The Bootstrap Authors.
+The MIT license text is retained in src/components/Icons/bootstrap-icons.LICENSE
+and in the distributed third-party notices.
+
+This product includes the OpenSearch Protobufs 1.2.0 schema. Its upstream notice:
+OpenSearch (https://opensearch.org/)
+Copyright OpenSearch Contributors
+Its Apache-2.0 license and notice are retained in src/protobuf/.
+
+The bundled KaTeX font software carries its own copyright notices and Reserved
+Font Names under the SIL Open Font License 1.1. The extracted font notices and
+license text are included in the distributed third-party notices.
+
+OpenSearch is a registered trademark of The Linux Foundation. OpenSearch branding
+in assets/ and the application icons is subject to the applicable trademark and
+brand policies. The project's source-code license does not grant trademark rights
+or imply approval, endorsement, or adoption by the OpenSearch project.
